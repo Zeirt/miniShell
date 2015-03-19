@@ -40,7 +40,7 @@ int main (int argc, char *argv[])
 			}
 		}
 	}
-	while (cont==true); //will exit when "false"
+	while (cont); //will exit when "false"
 	
 	jobs_free_mem(); //frees memory
 	return 0; //ends with no errors
