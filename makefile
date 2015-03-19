@@ -1,10 +1,10 @@
 CFLAGS= -c -g -Wall
-OFLAGS= -g -static -L./ -lshell -o
+OFLAGS= -L./lib/Linux/i686 -lshell -o
 
 all: free_args.o minishell_input.o minishell.o minishell
 
-minishell: minishell.o
-	gcc minishell.o minishell_input.o $(OFLAGS) minishell
+minishell: minishell.o 
+	gcc minishell.o  minishell_input.o free_args.o  $(OFLAGS) minishell
 
 free_args.o: free_args.c
 	gcc free_args.c $(CFLAGS)
