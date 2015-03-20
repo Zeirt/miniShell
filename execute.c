@@ -7,6 +7,16 @@
 #include "free_args.h"
 #include "jobs.h"
 
+void killChild(int signal)//handler preventing zombies
+{
+	pid_t pid;
+	int stat;
+	while ( (pid=waitpid(-1,&stat,WNOHANG))>0)
+	{
+		printf("I am kill");
+	}
+	return;
+}
 
 void execute_external_command(const char *command)
 {
@@ -14,6 +24,9 @@ void execute_external_command(const char *command)
 	int backgr=0;
 	int status; //keeps track of child's status
 	pid_t pid,ppid; //pid of child and parent
+	struct sigaction kill;//to use signal handlers
+
+	kill.sa_handler=killChild;//assign child killer
 	if ((args=parser_command(command,&backgr))==NULL) 
 	{
 		return; //there is no command
@@ -41,6 +54,7 @@ void execute_external_command(const char *command)
 			{
 				ppid=wait(&status); //parent doesn't block
 			}
+			sigaction(SIGCHLD,&kill,NULL);//once done, kills child
 		}
 	
 	jobs_finished(pid); //indicates the job/process is done
