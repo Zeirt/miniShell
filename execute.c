@@ -12,15 +12,16 @@ void execute_external_command(const char *command)
 {
 	char **args;
 	int backgr=0;
-	pid_t pid;
+	int status; //keeps track of child's status
+	pid_t pid,ppid; //pid of child and parent
 	if ((args=parser_command(command,&backgr))==NULL) 
 	{
-		return 1; //code 1= there is no command
+		return; //there is no command
 	}
 	
 	pid=fork(); //create a child process
 	
-	if(pid==0)
+	/*if(pid==0)
 	{
 		printf("I am child: %d\n",pid);
 	} else if (pid>0)
@@ -30,9 +31,26 @@ void execute_external_command(const char *command)
 		else
 		{
 			printf("Fork exploded");
-			_exit(2); //exit on failure
+			_exit(1); //exit on failure
+		}*/
+
+	if(pid==0)//will be 0 if it's the parent
+	{
+		ppid=getpid(); //get the pid of parent
+		if(execvp(*args,args)<0)//executes order, returns negative if fail
+		{
+			printf("The execution has failed! \n");
+			exit(1); //exit on failure
+		}
+	 }
+	else if (pid>0) //won't be 0 if it's the child
+		{
+			//jobs_new(pid,'c');//add name stuff later, registers child
+			ppid=wait(&status); //parent waits for child to finish
 		}
 	
+	jobs_finished(pid); //indicates the job/process is done
+	
 	parser_free_args(args);//free memory
-	return 0; //all ended well
+	return; //go back, main() starts over
 }
