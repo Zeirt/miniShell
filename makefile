@@ -20,4 +20,5 @@ minishell.o: minishell.c
 
 clean:
 	rm *.o
+	rm minishell
 	echo done
