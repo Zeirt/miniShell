@@ -13,7 +13,7 @@ void killChild(int signal)//handler preventing zombies
 	int stat;
 	while ( (pid=waitpid(-1,&stat,WNOHANG))>0)
 	{
-		printf("I am kill");
+		printf("I am kill");//apparently this doesn't print??
 	}
 	return;
 }
@@ -23,7 +23,7 @@ void execute_external_command(const char *command)
 	char **args;
 	int backgr=0;
 	int status; //keeps track of child's status
-	pid_t pid,ppid; //pid of child and parent
+	pid_t pid; //pid of child and parent
 	struct sigaction kill;//to use signal handlers
 
 	kill.sa_handler=killChild;//assign child killer
@@ -36,7 +36,6 @@ void execute_external_command(const char *command)
 	
 	if(pid==0)//will be 0 if it's the parent
 	{
-		ppid=getpid(); //get the pid of parent
 		if(execvp(*args,args)<0)//executes order, returns negative if fail
 		{
 			printf("The execution has failed! \n");
@@ -48,11 +47,11 @@ void execute_external_command(const char *command)
 			//jobs_new(pid,'c');//add name stuff later, registers child
 			if(backgr==0) //no bg, if bg, parent doesn't wait
 			{
-				ppid=waitpid(pid,&status,WNOHANG); //parent waits for child to finish
+				waitpid(pid,&status,WNOHANG); //parent waits for child to finish
 			}
 			else
 			{
-				ppid=wait(&status); //parent doesn't block
+				wait(&status); //parent doesn't block
 			}
 			sigaction(SIGCHLD,&kill,NULL);//once done, kills child
 		}
