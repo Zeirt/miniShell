@@ -23,7 +23,7 @@ int main (int argc, char *argv[])
 	do
 	{
 		print_prompt();//print the prompt
-		read_command_line(buf);//send line as pointer
+		read_command_line(buf);//send line
 		if (strcmp(buf,"exit")==0)//returns 0 if strings equal
 		{
 			 cont=false; //terminates
@@ -36,7 +36,7 @@ int main (int argc, char *argv[])
 			}
 			else
 			{ 
-				printf("Ugh"); //no code for external so far
+				 execute_external_command(buf);
 			}
 		}
 	}
