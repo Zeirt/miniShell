@@ -7,14 +7,12 @@
 #include "free_args.h"
 #include "jobs.h"
 
-void killChild(int signal)//handler preventing zombies
+void killChild(int signal,siginfo_t *siginfo, void *context)//handler of SIGCHLD
 {
-	pid_t pid;
-	int stat;
-	while ( (pid=waitpid(-1,&stat,WNOHANG))>0)
+	while ( (waitpid(siginfo->si_pid,0,WNOHANG))>0)//reaps zombies
 	{
-		printf("I am kill");//apparently this doesn't print??
 	}
+	jobs_finished(siginfo->si_pid); //indicate the job is finished
 	return;
 }
 
@@ -23,10 +21,12 @@ void execute_external_command(const char *command)
 	char **args;
 	int backgr=0;
 	int status; //keeps track of child's status
-	pid_t pid; //pid of child and parent
-	struct sigaction kill;//to use signal handlers
+	pid_t pid; //pid of child
+	struct sigaction kill;//struct for a handler
 
-	kill.sa_handler=killChild;//assign child killer
+	kill.sa_handler=killChild;//assign SIGCHLD handler
+	kill.sa_flags=SA_SIGINFO; //needs this flag to handle info
+	sigaction(SIGCHLD,&kill,NULL); //will go to killChild when SIGCHLD
 	if ((args=parser_command(command,&backgr))==NULL) 
 	{
 		return; //there is no command
@@ -41,10 +41,11 @@ void execute_external_command(const char *command)
 			printf("The execution has failed! \n");
 			exit(1); //exit on failure
 		}
+		pid=getpid(); //might be useless, keep in mind
 	 }
 	else if (pid>0) //won't be 0 if it's the child
 		{
-			//jobs_new(pid,'c');//add name stuff later, registers child
+			jobs_new(pid,args[0]);//registers child as job
 			if(backgr==0) //no bg, if bg, parent doesn't wait
 			{
 				waitpid(pid,&status,WNOHANG); //parent waits for child to finish
@@ -53,10 +54,12 @@ void execute_external_command(const char *command)
 			{
 				wait(&status); //parent doesn't block
 			}
-			sigaction(SIGCHLD,&kill,NULL);//once done, kills child
+
 		}
-	
-	jobs_finished(pid); //indicates the job/process is done
+		else//if pid <0, fork has failed
+		{
+			printf("Fork has failed!");
+		}
 	
 	parser_free_args(args);//free memory
 	return; //go back, main() starts over
