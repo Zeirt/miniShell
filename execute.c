@@ -24,7 +24,7 @@ void execute_external_command(const char *command)
 	pid_t pid; //pid of child
 	struct sigaction kill;//struct for a handler
 
-	kill.sa_handler=killChild;//assign SIGCHLD handler
+	kill.sa_sigaction=killChild;//assign SIGCHLD handler
 	kill.sa_flags=SA_SIGINFO; //needs this flag to handle info
 	sigaction(SIGCHLD,&kill,NULL); //will go to killChild when SIGCHLD
 	if ((args=parser_command(command,&backgr))==NULL) 
