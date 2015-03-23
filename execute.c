@@ -48,11 +48,11 @@ void execute_external_command(const char *command)
 			jobs_new(pid,args[0]);//registers child as job
 			if(backgr==0) //no bg, if bg, parent doesn't wait
 			{
-				waitpid(pid,&status,WNOHANG); //parent waits for child to finish
+				wait(&status); //parent waits for child to finish
 			}
 			else
 			{
-				wait(&status); //parent doesn't block
+				waitpid(pid,&status,WNOHANG); //parent doesn't block
 			}
 
 		}
