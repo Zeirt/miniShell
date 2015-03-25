@@ -18,26 +18,32 @@
 int main (int argc, char *argv[])
 {
 	char buf[BUFSIZ];
-	
+	char s[2]=";"; //token delimiter for multiple orders
+	char *token;//token storer
 	bool cont=true; //keeps track of exit or not
 	do
 	{
 		print_prompt();//print the prompt
 		read_command_line(buf);//send line
-		if (strcmp(buf,"exit")==0)//returns 0 if strings equal
+		token=strtok(buf,s);//gets first token
+		while(token!=NULL)//walks through the other tokens
 		{
-			 cont=false; //terminates
-		}
-		else //checks if comand is internal or external
-		{
-			if(is_internal_command(buf))
+			if (strcmp(token,"exit")==0)//returns 0 if strings equal
 			{
-				 execute_internal_command(buf);
+				 cont=false; //terminates
 			}
-			else
-			{ 
-				 execute_external_command(buf);
+			else //checks if comand is internal or external
+			{
+				if(is_internal_command(token))
+				{
+					 execute_internal_command(token);
+				}
+				else
+				{ 
+					 execute_external_command(token);
+				}
 			}
+			token=strtok(NULL,s);//picks next token
 		}
 	}
 	while (cont); //will exit when "false"
