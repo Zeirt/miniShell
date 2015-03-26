@@ -42,7 +42,6 @@ void execute_external_command(const char *command)
 			printf("The execution has failed! \n");
 			exit(1); //exit on failure
 		}
-		//pid=getpid(); //might be useless, keep in mind
 	 }
 	else if (pid>0) //won't be 0 if it's the child
 		{
